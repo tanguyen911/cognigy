@@ -9,28 +9,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&display=swap" rel="stylesheet">
 
-<!--
-  ============================================================
-  SETUP (edit only this block and the two marked slots below)
-  ============================================================
-  1. In Cognigy: Deploy > Endpoints > your Voice Gateway endpoint >
-     "Set Up Click To Call Integration". Copy the embed code it generates.
-  2. Paste that embed code into SLOT A (inside the call panel, further down).
-     If the widget renders as a floating button, leave it as is; the page
-     still explains how to start the call.
-  3. Only if you cannot use the embed code: set CALL_URL below to the
-     Click-to-Call URL. It then loads inside this page (SLOT B).
-  4. XAPP_PIN_URL: the xApp PIN page of your tenant. In Cognigy, run
-     xApp: Init Session (PIN option on) + xApp: Get Session PIN once and copy
-     the value of {{input.apps.baseUrl}}. The "Open AlpenBank app" button
-     opens this page in a new tab; the caller types the short code the
-     assistant reads out. The call keeps running in this tab.
-  Never put the Capstone API key or any other secret in this file.
--->
 <script>
   window.ALPEN_CONFIG = {
-    CALL_URL: "",            // fallback only, e.g. the Click-to-Call URL from Cognigy
-    XAPP_PIN_URL: "https://cognigy-static-jp1.nicecxone.com"         // the xApp PIN page, copied from {{input.apps.baseUrl}}
+    XAPP_PIN_URL: "https://cognigy-static-jp1.nicecxone.com"
   };
 </script>
 
@@ -215,12 +196,10 @@
             <div class="status"><span class="dot" aria-hidden="true"></span><span data-i18n="status">Available 24 hours, 7 days a week</span></div>
 
             <div class="slot" id="call-slot">
-              <!-- ===== SLOT A: paste the Cognigy Click-to-Call embed code here ===== -->
 				<script src="https://github.com/Cognigy/click-to-call-widget/releases/latest/download/webRTCWidget.js"></script>
 				<script>
 					addEventListener("load", (event) => {if (window.initWebRTCWidget) {window.initWebRTCWidget("https://cognigy-endpoint-jp1.nicecxone.com/dbb63885d0ed23fadfc6b232764fb9ed00583abfcd05b461b11549959d762571")}});
 				</script>
-              <!-- ===== end of SLOT A ===== -->
               <div id="call-fallback">
                 <button class="btn-call" type="button" id="start-call">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
@@ -228,7 +207,6 @@
                 </button>
                 <p class="slot-note" id="slot-note" role="status"></p>
               </div>
-              <!-- ===== SLOT B (filled automatically when CALL_URL is set) ===== -->
               <div id="call-frame-holder" hidden></div>
             </div>
 
@@ -311,10 +289,7 @@
   var holder = document.getElementById("call-frame-holder");
   var startBtn = document.getElementById("start-call");
 
-  // If an embed snippet was pasted into SLOT A, it usually injects its own element.
-  // Give it a moment, then hide our button when something else rendered in the slot.
-  // The Cognigy Click-to-Call widget adds its call bar to the end of the page (fixed, bottom right).
-  // Move it into the call panel (SLOT A) so the call button sits here, and hide our own button.
+  // Move the Click-to-Call widget into the call panel and hide the fallback button.
   var docked = false;
   function dock(el){
     if (docked || !el || el.nodeType !== 1) return;
@@ -361,7 +336,7 @@
       fallback.hidden = true;
       return;
     }
-    // Embed code present but rendered as a floating launcher: point the user to it.
+    // Widget rendered as a floating launcher: point the user to it.
     note.textContent = t("floating");
   });
 
